@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import Header from "./Header";
 import PokemonCard from "./PokemonCard";
 import { makeStyles } from "@material-ui/core/styles";
-import { Grid } from "@material-ui/core";
+import { Grid, CircularProgress, CardMedia} from "@material-ui/core";
+import mockData from "./mockData";
 
 const useStyles = makeStyles({
   pokedexContainer: {
@@ -14,18 +15,18 @@ const useStyles = makeStyles({
 
 function Pokedex() {
   const classes = useStyles();
+  const [pokemonData, setPokemonData] = useState(mockData);
+
   return (
     <div>
       <Header />
-      <Grid container spacing={2} className={classes.pokedexContainer}>
-        <PokemonCard />
-        <PokemonCard />
-        <PokemonCard />
-        <PokemonCard />
-        <PokemonCard />
-        <PokemonCard />
-        <PokemonCard />
-      </Grid>
+      {pokemonData ? (
+        <Grid container spacing={2} className={classes.pokedexContainer}>
+         {Object.keys(pokemonData).map(pokemonId => {return <PokemonCard pokemonId={pokemonId}/>})}
+        </Grid>
+      ) : (
+        <CircularProgress />
+      )}
     </div>
   );
 }
