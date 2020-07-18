@@ -1,13 +1,15 @@
-import React from 'react';
-import Header from "./Header"
-import BackgroundImage from "./BackgroundImage"
+import React from "react";
+import Pokedex from "./Pokedex.jsx";
+import Party from "./Party.jsx";
+import {Route, Switch} from "react-router-dom";
 
 function App() {
   return (
-    <div className="App">
-      <Header />
-      <BackgroundImage/>
-    </div>
+    <Switch>
+      <Route exact path="/" render={(props) => <Pokedex {...props}/>}/>
+      <Route exact path="/pokedex" render={(props) => <Pokedex {...props}/>}/>
+      <Route exact path="/party" render={(props) => <Party {...props}/>}/>
+    </Switch>
   );
 }
 

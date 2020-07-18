@@ -4,7 +4,12 @@ body{
     background-color: #E5E5E5;
 }
 
-.MuiAppBar-colorPrimary {
-    color: #fff;
-    background-color: #333333;
-}
+a {
+    color: gray;
+    text-decoration: none ;
+  }
+
+a:hover {
+     color: #FFF;
+     text-decoration: none ;
+  }
