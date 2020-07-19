@@ -4,12 +4,19 @@ import PokemonCard from "./PokemonCard";
 import { makeStyles } from "@material-ui/core/styles";
 import { Grid, CircularProgress } from "@material-ui/core";
 import axios from "axios";
+import Chip from "@material-ui/core/Chip";
 
 const useStyles = makeStyles({
   pokedexContainer: {
     paddingTop: "20px",
     paddingLeft: "50px",
     paddingRight: "50px",
+    alignSelf: "center",
+  },
+  pokeGrid: {
+    marginLeft: "10%",
+    marginRight: "10%",
+    textAlign: "center",
   },
 });
 
@@ -37,23 +44,54 @@ function Pokedex() {
       });
   }, []);
 
+  const [partyMember, setpartyMember] = useState([]);
+
+  function AddToParty(newId) {
+    setpartyMember((prevMembers) => {
+      if (prevMembers.length < 6 && !prevMembers.includes(newId)) {
+        return [...prevMembers, newId];
+      } else {
+        return [...prevMembers];
+      }
+    });
+  }
+
+  function DeleteFromParty(newId) {
+    setpartyMember((prevMembers) => {
+      return prevMembers.filter((member) => {
+        return member !== newId;
+      });
+    });
+  }
+
+  
   return (
     <div>
       <Header />
-      {pokemonsData ? (
-        <Grid container spacing={2} className={classes.pokedexContainer}>
-          {Object.keys(pokemonsData).map((pokemonId) => {
-            return (
-              <PokemonCard
-                pokemonId={pokemonId}
-                pokemonData={pokemonsData[pokemonId]}
-              />
-            );
-          })}
-        </Grid>
-      ) : (
-        <CircularProgress />
-      )}
+      <div className={classes.pokeGrid}>
+        {pokemonsData ? (
+          <Grid container spacing={2} className={classes.pokedexContainer}>
+            {Object.keys(pokemonsData).map((pokemonId) => {
+              return (
+                <PokemonCard
+                  key={pokemonId}
+                  pokemonId={pokemonId}
+                  pokemonData={pokemonsData[pokemonId]}
+                  addToParty={AddToParty}
+                  deleteFromParty={DeleteFromParty}
+                />
+              );
+            })}
+          </Grid>
+        ) : (
+          <CircularProgress />
+        )}
+      </div>
+      <div>
+        {partyMember.map((member) => {
+          return <Chip label={`${member}`} />;
+        })}
+      </div>
     </div>
   );
 }
