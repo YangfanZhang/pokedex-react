@@ -23,9 +23,13 @@ const useStyles = makeStyles({
 function Pokedex() {
   const classes = useStyles();
   const [pokemonsData, setPokemonsData] = useState({});
+
+  const [currentPage, setCurrentPage] = useState(1);
+
   useEffect(() => {
+      const offset = 12 * currentPage - 1;
     axios
-      .get("https://pokeapi.co/api/v2/pokemon?limit=12")
+      .get(`https://pokeapi.co/api/v2/pokemon?limit=12&offset=${offset}`)
       .then(function (response) {
         const { data } = response;
         const { results } = data;
@@ -42,7 +46,7 @@ function Pokedex() {
         });
         setPokemonsData(newPokemonsData);
       });
-  }, []);
+  }, [currentPage]);
 
   const [partyMember, setpartyMember] = useState([]);
 
@@ -64,7 +68,7 @@ function Pokedex() {
     });
   }
 
-  
+
   return (
     <div>
       <Header />
