@@ -4,7 +4,6 @@ body {
   background-color: #E5E5E5;
   background-image: url(/imgs/Pikachu.svg);
   background-repeat: no-repeat;
-  background-attachment: fixed;
   background-position: 50px 90px;
 }
 
