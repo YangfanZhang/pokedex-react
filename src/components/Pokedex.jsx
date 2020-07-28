@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef, useCallback } from "react";
 import Header from "./Header";
 import PokemonCard from "./PokemonCard";
 import { makeStyles } from "@material-ui/core/styles";
@@ -23,17 +23,32 @@ const useStyles = makeStyles({
 function Pokedex() {
   const classes = useStyles();
   const [pokemonsData, setPokemonsData] = useState({});
-
+  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  
+  const observer = useRef();
+  const lastPokemonElementRef = useCallback(node => {
+    if (loading) return
+    if (observer.current) observer.current.disconnect()
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        setCurrentPage(currentPage => currentPage + 1)
+      }
+    })
+    if (node) observer.current.observe(node)
+  }, [loading, hasMore])
 
   useEffect(() => {
       const offset = 12 * currentPage - 1;
+      setLoading(true);
     axios
       .get(`https://pokeapi.co/api/v2/pokemon?limit=12&offset=${offset}`)
       .then(function (response) {
         const { data } = response;
         const { results } = data;
         const newPokemonsData = {};
+        setHasMore(offset < 152);
 
         results.forEach((pokemon, index) => {
           newPokemonsData[index + 1] = {
@@ -43,8 +58,9 @@ function Pokedex() {
               index + 1
             }.png`,
           };
-        });
+        });        
         setPokemonsData(newPokemonsData);
+        setLoading(false);
       });
   }, [currentPage]);
 
@@ -78,6 +94,7 @@ function Pokedex() {
             {Object.keys(pokemonsData).map((pokemonId) => {
               return (
                 <PokemonCard
+                  ref={lastPokemonElementRef}
                   key={pokemonId}
                   pokemonId={pokemonId}
                   pokemonData={pokemonsData[pokemonId]}
