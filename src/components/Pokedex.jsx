@@ -1,10 +1,10 @@
-import React, { useState, useEffect,useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import Header from "./Header";
 import PokemonCard from "./PokemonCard";
 import { makeStyles } from "@material-ui/core/styles";
 import { Grid, CircularProgress } from "@material-ui/core";
-import axios from "axios";
 import Chip from "@material-ui/core/Chip";
+import PokemonList from "./PokemonList";
 
 const useStyles = makeStyles({
   pokedexContainer: {
@@ -22,10 +22,8 @@ const useStyles = makeStyles({
 
 function Pokedex() {
   const classes = useStyles();
-  const [pokemonsData, setPokemonsData] = useState({});
-  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const {pokemonsData, loading, hasMore} = PokemonList(currentPage);
   
   const observer = useRef();
   const lastPokemonElementRef = useCallback(node => {
@@ -39,30 +37,6 @@ function Pokedex() {
     if (node) observer.current.observe(node)
   }, [loading, hasMore])
 
-  useEffect(() => {
-      const offset = 12 * currentPage - 1;
-      setLoading(true);
-    axios
-      .get(`https://pokeapi.co/api/v2/pokemon?limit=12&offset=${offset}`)
-      .then(function (response) {
-        const { data } = response;
-        const { results } = data;
-        const newPokemonsData = {};
-        setHasMore(offset < 152);
-
-        results.forEach((pokemon, index) => {
-          newPokemonsData[index + 1] = {
-            id: index + 1,
-            name: pokemon.name,
-            sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${
-              index + 1
-            }.png`,
-          };
-        });        
-        setPokemonsData(newPokemonsData);
-        setLoading(false);
-      });
-  }, [currentPage]);
 
   const [partyMember, setpartyMember] = useState([]);
 
