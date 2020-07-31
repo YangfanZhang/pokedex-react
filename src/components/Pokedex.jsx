@@ -68,7 +68,6 @@ function Pokedex() {
             {Object.keys(pokemonsData).map((pokemonId) => {
               return (
                 <PokemonCard
-                  ref={lastPokemonElementRef}
                   key={pokemonId}
                   pokemonId={pokemonId}
                   pokemonData={pokemonsData[pokemonId]}
