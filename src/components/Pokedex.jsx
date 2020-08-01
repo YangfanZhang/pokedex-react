@@ -23,20 +23,7 @@ const useStyles = makeStyles({
 function Pokedex() {
   const classes = useStyles();
   const [currentPage, setCurrentPage] = useState(1);
-  const {pokemonsData, loading, hasMore} = PokemonList(currentPage);
-  
-  const observer = useRef();
-  const lastPokemonElementRef = useCallback(node => {
-    if (loading) return
-    if (observer.current) observer.current.disconnect()
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore) {
-        setCurrentPage(currentPage => currentPage + 1)
-      }
-    })
-    if (node) observer.current.observe(node)
-  }, [loading, hasMore])
-
+  const { pokemonsData, loading, hasMore } = PokemonList(currentPage);
 
   const [partyMember, setpartyMember] = useState([]);
 
@@ -57,7 +44,6 @@ function Pokedex() {
       });
     });
   }
-
 
   return (
     <div>
