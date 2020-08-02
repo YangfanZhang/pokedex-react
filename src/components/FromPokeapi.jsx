@@ -15,10 +15,11 @@ function FromPokeapi() {
         console.log(data);
 
         results.forEach((pokemon, index) => {
-          axios.get(`https://pokeapi.co/api/v2/pokemon/${index + 1}`)
+          axios.get(pokemon.url)
           .then(function (response){
             const { data } = response;
             const { types } = data;
+            const {sprites} = data;
             let newTypes = [];
             types.forEach((type) => {
               const {
@@ -29,9 +30,7 @@ function FromPokeapi() {
             newPokemonsData[index + 1] = {
                 id: index + 1,
                 name: pokemon.name,
-                sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${
-                  index + 1
-                }.png`,
+                sprite: sprites.front_default,
                 types: newTypes,
               };
               newTypes = [];
