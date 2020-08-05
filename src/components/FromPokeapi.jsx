@@ -1,47 +1,38 @@
 import axios from "axios";
-import { useState, useEffect } from "react";
 
-function FromPokeapi() {
-  const [pokemonsData, setPokemonsData] = useState({});
-
-  useEffect(() => {
-    const limit = 151;
-    axios
-      .get(`https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=0`)
-      .then(function (response) {
-        const { data } = response;
-        const { results } = data;
-        const newPokemonsData = {};
-        console.log(data);
-
-        results.forEach((pokemon, index) => {
-          axios.get(pokemon.url)
-          .then(function (response){
-            const { data } = response;
-            const { types } = data;
-            const {sprites} = data;
-            let newTypes = [];
-            types.forEach((type) => {
-              const {
-                type: { name },
-              } = type;
-              newTypes.push(name);
-            });
-            newPokemonsData[index + 1] = {
-                id: index + 1,
-                name: pokemon.name,
-                sprite: sprites.front_default,
-                types: newTypes,
-              };
-              newTypes = [];
-          }
-          );
-        });
-        setPokemonsData(newPokemonsData);
-      });
-  }, []);
-
-  return pokemonsData;
+function getIdList(limit, offset){
+    return Array.from(Array(limit), (_, i) => (i + offset+ 1));
 }
+
+const fetchPokemon = async (id) => {
+  const res = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}/`);
+  return res.data;
+};
+
+function FromPokeapi(limit, offset) {
+  const pokemonsData = {};
+  const idList = getIdList(limit, offset);
+  idList.forEach(async id => {
+    const data = await fetchPokemon(id);
+    const {types} = data;
+    const {sprites} = data;
+    const {name} = data;
+    let newTypes = [];
+    types.forEach((type) => {
+      const {
+        type: { name },
+      } = type;
+      newTypes.push(name);
+    });
+    pokemonsData[id] = {
+        id: id,
+        name: name,
+        sprite: sprites.front_default,
+        types: newTypes,
+      };
+      newTypes = [];
+  });
+  return pokemonsData;
+ }
 
 export default FromPokeapi;
