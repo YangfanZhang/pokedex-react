@@ -7,7 +7,6 @@ import {
   Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import axios from "axios";
 import Chip from "@material-ui/core/Chip";
 
 const useStyles = makeStyles((theme) => ({
@@ -32,41 +31,23 @@ function toFirstCharUppercase(text) {
 
 function PokemonCard(props) {
   const classes = useStyles();
-  const pokemonData = props.pokemonData;
-  const [pokemonTypes, setPokemonTypes] = useState([]);
-  useEffect(() => {
-    axios
-      .get(`https://pokeapi.co/api/v2/pokemon/${props.pokemonId + 1}`)
-      .then(function (response) {
-        const { data } = response;
-        const { types } = data;
-        const newTypes = [];
-        types.forEach((type) => {
-          const {
-            type: { name },
-          } = type;
-          newTypes.push(name);
-        });
-        setPokemonTypes(newTypes);
-      });
-  });
 
   function handleClick(event) {
-    props.addToParty(props.pokemonId);
+    props.addToParty(props.pokemonData.pokemonId);
   }
 
   function handleDelete(event) {
-    props.deleteFromParty(props.pokemonId);
+    props.deleteFromParty(props.pokemonData.pokemonId);
   }
 
   return (
     <Grid item xs={4} key={props.pokemonId} onClick={handleClick}>
       <Card hoverable="true" className={classes.cardItem}>
-        <CardMedia className={classes.cardMedia} image={pokemonData.sprite} />
+        <CardMedia className={classes.cardMedia} image={props.pokemonData.sprite} />
         <CardContent className={classes.cardContent}>
-          <Typography>{`${pokemonData.id}`}</Typography>
-          <Typography>{`${toFirstCharUppercase(pokemonData.name)}`}</Typography>
-          {pokemonTypes.map((pokemonType) => {
+          <Typography>{`${props.pokemonData.id}`}</Typography>
+          <Typography>{`${toFirstCharUppercase(props.pokemonData.name)}`}</Typography>
+          {props.pokemonData.types.map((pokemonType) => {
             return <Chip label={`${pokemonType}`} />;
           })}
         </CardContent>
