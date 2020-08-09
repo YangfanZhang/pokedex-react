@@ -1,10 +1,10 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "./Header";
 import PokemonCard from "./PokemonCard";
 import { makeStyles } from "@material-ui/core/styles";
 import { Grid, CircularProgress } from "@material-ui/core";
 import Chip from "@material-ui/core/Chip";
-import PokemonList from "./PokemonList";
+import FromPokeapi from "./FromPokeapi";
 
 const useStyles = makeStyles({
   pokedexContainer: {
@@ -17,15 +17,29 @@ const useStyles = makeStyles({
     marginLeft: "10%",
     marginRight: "10%",
     textAlign: "center",
+    display: "grid",
+    width: "800px",
+    height: "800px",
+    margin: "0 auto",
+    overflow: "auto",
   },
 });
 
 function Pokedex() {
   const classes = useStyles();
   const [currentPage, setCurrentPage] = useState(1);
-  const { pokemonsData, loading, hasMore } = PokemonList(currentPage);
-
   const [partyMember, setpartyMember] = useState([]);
+  const pokemonsData = FromPokeapi(12, 0);
+
+  const handleScroll = (event) => {
+    const { scrollTop, clientHeight, scrollHeight } = event.currentTarget;
+    if (scrollHeight - scrollTop === clientHeight) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
+  console.log(pokemonsData);
+  // console.log(pokemonsData.);
+  console.log(pokemonsData[1]);
 
   function AddToParty(newId) {
     setpartyMember((prevMembers) => {
@@ -48,15 +62,19 @@ function Pokedex() {
   return (
     <div>
       <Header />
-      <div className={classes.pokeGrid}>
+      <div className={classes.pokeGrid} onScroll={handleScroll}>
         {pokemonsData ? (
-          <Grid container spacing={2} className={classes.pokedexContainer}>
-            {Object.keys(pokemonsData).map((pokemonId) => {
+          <Grid
+            container
+            spacing={2}
+            className={classes.pokedexContainer}
+            onScroll={handleScroll}
+          >
+            {Object.keys(pokemonsData).map((id) => {
               return (
                 <PokemonCard
-                  key={pokemonId}
-                  pokemonId={pokemonId}
-                  pokemonData={pokemonsData[pokemonId]}
+                  key={id}
+                  pokemonData={pokemonsData[id]}
                   addToParty={AddToParty}
                   deleteFromParty={DeleteFromParty}
                 />
