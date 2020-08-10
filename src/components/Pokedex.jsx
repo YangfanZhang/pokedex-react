@@ -4,7 +4,7 @@ import PokemonCard from "./PokemonCard";
 import { makeStyles } from "@material-ui/core/styles";
 import { Grid, CircularProgress } from "@material-ui/core";
 import Chip from "@material-ui/core/Chip";
-import FromPokeapi from "./FromPokeapi";
+import {fetchPokemon, getIdList} from "./FromPokeapi";
 
 const useStyles = makeStyles({
   pokedexContainer: {
@@ -25,11 +25,30 @@ const useStyles = makeStyles({
   },
 });
 
+
 function Pokedex() {
   const classes = useStyles();
   const [currentPage, setCurrentPage] = useState(1);
   const [partyMember, setpartyMember] = useState([]);
-  const pokemonsData = FromPokeapi(12, 0);
+  const [pokemonsData, setPokemonsData] = useState([])
+  const [limitOffset, setLimitOffset] = useState([12, 0]);
+  
+  
+  const loadPokemon = async (idList) => {
+    let _pokemonsData = await Promise.all(idList.map(async id => {
+      let pokemonRecord = await fetchPokemon(id)
+      return pokemonRecord
+    }))
+    setPokemonsData(_pokemonsData);
+  };
+
+  useEffect(() => {
+    async function fetchData() {
+      const idList = getIdList(limitOffset[0], limitOffset[1]);
+      await loadPokemon(idList);
+    }
+    fetchData();
+  }, [limitOffset]);
 
   const handleScroll = (event) => {
     const { scrollTop, clientHeight, scrollHeight } = event.currentTarget;
@@ -37,9 +56,6 @@ function Pokedex() {
       setCurrentPage((prev) => prev + 1);
     }
   };
-  console.log(pokemonsData);
-  // console.log(pokemonsData.);
-  console.log(pokemonsData[1]);
 
   function AddToParty(newId) {
     setpartyMember((prevMembers) => {
@@ -70,11 +86,15 @@ function Pokedex() {
             className={classes.pokedexContainer}
             onScroll={handleScroll}
           >
-            {Object.keys(pokemonsData).map((id) => {
+            {pokemonsData.map((pokemon) => {
+              const {types, sprites, name, id} = pokemon;
               return (
                 <PokemonCard
                   key={id}
-                  pokemonData={pokemonsData[id]}
+                  id ={id}
+                  types = {types}
+                  img = {sprites}
+                  name = {name}
                   addToParty={AddToParty}
                   deleteFromParty={DeleteFromParty}
                 />

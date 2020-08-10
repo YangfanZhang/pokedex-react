@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   Grid,
   Card,
@@ -41,14 +41,17 @@ function PokemonCard(props) {
   }
 
   return (
-    <Grid item xs={4} key={props.pokemonId} onClick={handleClick}>
+    <Grid item xs={4} key={props.id} onClick={handleClick}>
       <Card hoverable="true" className={classes.cardItem}>
-        <CardMedia className={classes.cardMedia} image={props.pokemonData.sprite} />
+        <CardMedia className={classes.cardMedia} image={props.img.front_default} />
         <CardContent className={classes.cardContent}>
-          <Typography>{`${props.pokemonData.id}`}</Typography>
-          <Typography>{`${toFirstCharUppercase(props.pokemonData.name)}`}</Typography>
-          {props.pokemonData.types.map((pokemonType) => {
-            return <Chip label={`${pokemonType}`} />;
+          <Typography>{`${props.id}`}</Typography>
+          <Typography>{`${toFirstCharUppercase(props.name)}`}</Typography>
+          {props.types.map((pokemonType, index) => {
+        const {
+           type: { name },
+         } = pokemonType; 
+            return <Chip key={index} label={`${name}`} />;
           })}
         </CardContent>
         <Chip onDelete={handleDelete} />
