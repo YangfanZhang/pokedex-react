@@ -1,38 +1,86 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
+import { fetchPokemon, getIdList } from "./FromPokeapi";
+import PokemonCard from "./PokemonCard";
+import { makeStyles } from "@material-ui/core/styles";
+import { Grid, CircularProgress } from "@material-ui/core";
+import InfiniteScroll from "react-infinite-scroll-component";
 
+const useStyles = makeStyles({
+  pokedexContainer: {
+    paddingTop: "20px",
+    paddingLeft: "50px",
+    paddingRight: "50px",
+    alignSelf: "center",
+  },
+  pokeGrid: {
+    marginLeft: "10%",
+    marginRight: "10%",
+    textAlign: "center",
+    display: "grid",
+    width: "800px",
+    height: "800px",
+    margin: "0 auto",
+    overflow: "auto",
+  },
+});
 
 function PokemonList(props) {
-  const [pokemonsData, setPokemonsData] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+  const classes = useStyles();
+  const limit = 12;
+  const [offset, setOffset] = useState(0);
+  const [pokemonsData, setPokemonsData] = useState([]);
+
+  const loadPokemon = async (idList) => {
+    let _pokemonsData = await Promise.all(
+      idList.map(async (id) => {
+        let pokemonRecord = await fetchPokemon(id);
+        return pokemonRecord;
+      })
+    );
+    setPokemonsData(_pokemonsData);
+  };
 
   useEffect(() => {
-      const offset = 12 * props.currentPage - 1;
-      setLoading(true);
-    axios
-      .get(`https://pokeapi.co/api/v2/pokemon?limit=12&offset=${offset}`)
-      .then(function (response) {
-        const { data } = response;
-        const { results } = data;
-        const newPokemonsData = {};
-        setHasMore(offset < 152);
+    async function fetchData() {
+      const idList = getIdList(limit, offset);
+      await loadPokemon(idList);
+    }
+    fetchData();
+  });
 
-        results.forEach((pokemon, index) => {
-          newPokemonsData[index + 1] = {
-            id: index + 1,
-            name: pokemon.name,
-            sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${
-              index + 1
-            }.png`,
-          };
-        });        
-        setPokemonsData(newPokemonsData);
-        setLoading(false);
-      });
-  }, [props.currentPage]);
+   function fetchNext() {
+    setOffset(offset+limit);
+    const idList = getIdList(limit, offset);
+   loadPokemon(idList);
+  };
 
-  return {pokemonsData, loading, hasMore};
+  return (
+    <div>
+      <div className={classes.pokeGrid}>
+          <InfiniteScroll
+            dataLength={pokemonsData.length}
+            next={fetchNext}
+            hasMore={true}
+            loader={<h4>Loading...</h4>}
+          >
+            {pokemonsData.map((pokemon) => {
+              const { types, sprites, name, id } = pokemon;
+              return (
+                <PokemonCard
+                  key={id}
+                  id={id}
+                  types={types}
+                  img={sprites}
+                  name={name}
+                  addToParty={props.addToParty}
+                  deleteFromParty={props.deleteFromParty}
+                />
+              );
+            })}
+          </InfiniteScroll>
+      </div>
+    </div>
+  );
 }
 
 export default PokemonList;

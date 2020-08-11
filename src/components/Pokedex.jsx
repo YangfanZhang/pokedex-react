@@ -1,10 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState} from "react";
 import Header from "./Header";
-import PokemonCard from "./PokemonCard";
 import { makeStyles } from "@material-ui/core/styles";
-import { Grid, CircularProgress } from "@material-ui/core";
-import Chip from "@material-ui/core/Chip";
-import {fetchPokemon, getIdList} from "./FromPokeapi";
+import PokemonList from "./PokemonList";
 
 const useStyles = makeStyles({
   pokedexContainer: {
@@ -25,37 +22,16 @@ const useStyles = makeStyles({
   },
 });
 
-
 function Pokedex() {
-  const classes = useStyles();
-  const [currentPage, setCurrentPage] = useState(1);
+  // const classes = useStyles();
   const [partyMember, setpartyMember] = useState([]);
-  const [pokemonsData, setPokemonsData] = useState([])
-  const [limitOffset, setLimitOffset] = useState([12, 0]);
-  
-  
-  const loadPokemon = async (idList) => {
-    let _pokemonsData = await Promise.all(idList.map(async id => {
-      let pokemonRecord = await fetchPokemon(id)
-      return pokemonRecord
-    }))
-    setPokemonsData(_pokemonsData);
-  };
 
-  useEffect(() => {
-    async function fetchData() {
-      const idList = getIdList(limitOffset[0], limitOffset[1]);
-      await loadPokemon(idList);
-    }
-    fetchData();
-  }, [limitOffset]);
-
-  const handleScroll = (event) => {
-    const { scrollTop, clientHeight, scrollHeight } = event.currentTarget;
-    if (scrollHeight - scrollTop === clientHeight) {
-      setCurrentPage((prev) => prev + 1);
-    }
-  };
+  // const handleScroll = (event) => {
+  //   const { scrollTop, clientHeight, scrollHeight } = event.currentTarget;
+  //   if (scrollHeight - scrollTop === clientHeight) {
+  //     setCurrentPage((prev) => prev + 1);
+  //   }
+  // };
 
   function AddToParty(newId) {
     setpartyMember((prevMembers) => {
@@ -78,38 +54,7 @@ function Pokedex() {
   return (
     <div>
       <Header />
-      <div className={classes.pokeGrid} onScroll={handleScroll}>
-        {pokemonsData ? (
-          <Grid
-            container
-            spacing={2}
-            className={classes.pokedexContainer}
-            onScroll={handleScroll}
-          >
-            {pokemonsData.map((pokemon) => {
-              const {types, sprites, name, id} = pokemon;
-              return (
-                <PokemonCard
-                  key={id}
-                  id ={id}
-                  types = {types}
-                  img = {sprites}
-                  name = {name}
-                  addToParty={AddToParty}
-                  deleteFromParty={DeleteFromParty}
-                />
-              );
-            })}
-          </Grid>
-        ) : (
-          <CircularProgress />
-        )}
-      </div>
-      <div>
-        {partyMember.map((member) => {
-          return <Chip label={`${member}`} />;
-        })}
-      </div>
+      <PokemonList addToParty={AddToParty} deleteFromParty={DeleteFromParty} />
     </div>
   );
 }

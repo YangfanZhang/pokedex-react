@@ -33,11 +33,11 @@ function PokemonCard(props) {
   const classes = useStyles();
 
   function handleClick(event) {
-    props.addToParty(props.pokemonData.pokemonId);
+    props.addToParty(props.id);
   }
 
   function handleDelete(event) {
-    props.deleteFromParty(props.pokemonData.pokemonId);
+    props.deleteFromParty(props.id);
   }
 
   return (
