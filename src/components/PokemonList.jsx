@@ -29,7 +29,7 @@ function PokemonList(props) {
   const limit = 12;
   const [offset, setOffset] = useState(0);
   const [pokemonsData, setPokemonsData] = useState([]);
-  const [nextOffset, setNextOffset] = useState(0);
+  const [nextOffset, setNextOffset] = useState(12);
   const [prevOffset, setPrevOffset] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -53,12 +53,13 @@ function PokemonList(props) {
   }, []);
 
   const fetchPrev = async () => {
-    if (prevOffset ===0 ) return;
+    if (prevOffset <0 ) return;
     setLoading(true);
     const idList = getIdList(limit, prevOffset);
     await loadPokemon(idList);
-    setNextOffset(offset);
-    setPrevOffset(offset-limit);
+    setOffset(prevOffset);
+    setPrevOffset(prevOffset-limit);
+    setNextOffset(prevOffset+limit);
     setLoading(false);
   }
 
@@ -66,8 +67,9 @@ function PokemonList(props) {
     setLoading(true);
     const idList = getIdList(limit, nextOffset);
     await loadPokemon(idList);
-    setPrevOffset(offset);
-    setNextOffset(offset+limit);
+    setOffset(nextOffset);
+    setPrevOffset(nextOffset-limit);
+    setNextOffset(nextOffset+limit);
     setLoading(false);
   };
 
