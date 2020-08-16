@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { fetchPokemon, getIdList } from "./FromPokeapi";
 import PokemonCard from "./PokemonCard";
 import { makeStyles } from "@material-ui/core/styles";
@@ -40,6 +40,7 @@ function PokemonList(props) {
   const [prevOffset, setPrevOffset] = useState(0);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const observer = useRef();
 
   const loadPokemon = async (idList) => {
     if (idList.length === limit) {
@@ -51,7 +52,7 @@ function PokemonList(props) {
       );
       setPokemonsData(_pokemonsData);
       setHasMore(true);
-    } else if (idList.includes(151)){
+    } else if (idList.includes(151)) {
       let _pokemonsData = await Promise.all(
         idList.map(async (id) => {
           let pokemonRecord = await fetchPokemon(id);
@@ -60,7 +61,7 @@ function PokemonList(props) {
       );
       setPokemonsData(_pokemonsData);
       setHasMore(false);
-    }else{
+    } else {
       setHasMore(false);
     }
   };
@@ -84,7 +85,6 @@ function PokemonList(props) {
     setNextOffset(prevOffset + limit);
     setLoading(false);
   };
-
   const fetchNext = async () => {
     setLoading(true);
     const idList = getIdList(limit, nextOffset);
@@ -96,40 +96,51 @@ function PokemonList(props) {
     }
     setLoading(false);
   };
-
+  const lastPokeElementListRef = useCallback(
+    (node) => {
+      if (loading) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          fetchNext();
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [loading, hasMore]
+  );
   return (
     <div>
       <div className={classes.btn}>
         <button className={classes.pageBtn} onClick={fetchPrev}>
           Prev
         </button>
-        <button
-          className={classes.pageBtn}
-          onClick={fetchNext}
-        >
+        <button className={classes.pageBtn} onClick={fetchNext}>
           Next
         </button>
       </div>
-      <Grid className={classes.pokeGrid}>
-        {!loading ? (
-          pokemonsData.map((pokemon) => {
-            const { types, sprites, name, id } = pokemon;
-            return (
-              <PokemonCard
-                key={id}
-                id={id}
-                types={types}
-                img={sprites}
-                name={name}
-                addToParty={props.addToParty}
-                deleteFromParty={props.deleteFromParty}
-              />
-            );
-          })
-        ) : (
-          <CircularProgress />
-        )}
-      </Grid>
+      <div ref={lastPokeElementListRef}>
+        <Grid className={classes.pokeGrid}>
+          {!loading ? (
+            pokemonsData.map((pokemon) => {
+              const { types, sprites, name, id } = pokemon;
+              return (
+                <PokemonCard
+                  key={id}
+                  id={id}
+                  types={types}
+                  img={sprites}
+                  name={name}
+                  addToParty={props.addToParty}
+                  deleteFromParty={props.deleteFromParty}
+                />
+              );
+            })
+          ) : (
+            <CircularProgress />
+          )}
+        </Grid>
+      </div>
     </div>
   );
 }
