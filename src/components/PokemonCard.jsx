@@ -14,6 +14,8 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
   },
   cardItem: {
+    width: "230px",
+    height: "290px",
   },
   cardMedia: {
     width: "130px",

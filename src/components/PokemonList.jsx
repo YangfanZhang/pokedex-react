@@ -3,7 +3,6 @@ import { fetchPokemon, getIdList } from "./FromPokeapi";
 import PokemonCard from "./PokemonCard";
 import { makeStyles } from "@material-ui/core/styles";
 import { Grid, CircularProgress } from "@material-ui/core";
-import InfiniteScroll from "react-infinite-scroll-component";
 
 const useStyles = makeStyles({
   pokedexContainer: {
@@ -13,14 +12,22 @@ const useStyles = makeStyles({
     alignSelf: "center",
   },
   pokeGrid: {
+    marginTop: "2%",
+    marginButtom: "5%",
     marginLeft: "10%",
     marginRight: "10%",
     textAlign: "center",
     display: "grid",
-    width: "800px",
-    height: "800px",
-    margin: "0 auto",
-    overflow: "auto",
+    gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+    gridGap: "10px",
+  },
+  btn: {
+    marginTop: "1%",
+    marginButtom: "1%",
+    textAlign: "center",
+  },
+  pageBtn: {
+    textAlign: "center",
   },
 });
 
@@ -31,16 +38,31 @@ function PokemonList(props) {
   const [pokemonsData, setPokemonsData] = useState([]);
   const [nextOffset, setNextOffset] = useState(12);
   const [prevOffset, setPrevOffset] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   const loadPokemon = async (idList) => {
-    let _pokemonsData = await Promise.all(
-      idList.map(async (id) => {
-        let pokemonRecord = await fetchPokemon(id);
-        return pokemonRecord;
-      })
-    );
-    setPokemonsData(_pokemonsData);
+    if (idList.length === limit) {
+      let _pokemonsData = await Promise.all(
+        idList.map(async (id) => {
+          let pokemonRecord = await fetchPokemon(id);
+          return pokemonRecord;
+        })
+      );
+      setPokemonsData(_pokemonsData);
+      setHasMore(true);
+    } else if (idList.includes(151)){
+      let _pokemonsData = await Promise.all(
+        idList.map(async (id) => {
+          let pokemonRecord = await fetchPokemon(id);
+          return pokemonRecord;
+        })
+      );
+      setPokemonsData(_pokemonsData);
+      setHasMore(false);
+    }else{
+      setHasMore(false);
+    }
   };
 
   useEffect(() => {
@@ -53,55 +75,61 @@ function PokemonList(props) {
   }, []);
 
   const fetchPrev = async () => {
-    if (prevOffset <0 ) return;
+    if (prevOffset < 0) return;
     setLoading(true);
     const idList = getIdList(limit, prevOffset);
     await loadPokemon(idList);
     setOffset(prevOffset);
-    setPrevOffset(prevOffset-limit);
-    setNextOffset(prevOffset+limit);
+    setPrevOffset(prevOffset - limit);
+    setNextOffset(prevOffset + limit);
     setLoading(false);
-  }
+  };
 
-  const fetchNext= async() => {
+  const fetchNext = async () => {
     setLoading(true);
     const idList = getIdList(limit, nextOffset);
     await loadPokemon(idList);
-    setOffset(nextOffset);
-    setPrevOffset(nextOffset-limit);
-    setNextOffset(nextOffset+limit);
+    if (hasMore) {
+      setOffset(nextOffset);
+      setPrevOffset(nextOffset - limit);
+      setNextOffset(nextOffset + limit);
+    }
     setLoading(false);
   };
 
   return (
     <div>
-          <div className="btn">
-              <button onClick={fetchPrev}>Prev</button>
-              <button onClick={fetchNext}>Next</button>
-            </div>
-      <div className={classes.pokeGrid}>
-          <div
-            // dataLength={pokemonsData.length}
-            // next={fetchNext}
-            // hasMore={true}
-            // loader={<h4>Loading...</h4>}
-          >
-            {pokemonsData.map((pokemon) => {
-              const { types, sprites, name, id } = pokemon;
-              return (
-                <PokemonCard
-                  key={id}
-                  id={id}
-                  types={types}
-                  img={sprites}
-                  name={name}
-                  addToParty={props.addToParty}
-                  deleteFromParty={props.deleteFromParty}
-                />
-              );
-            })}
-          </div>
+      <div className={classes.btn}>
+        <button className={classes.pageBtn} onClick={fetchPrev}>
+          Prev
+        </button>
+        <button
+          className={classes.pageBtn}
+          onClick={fetchNext}
+        >
+          Next
+        </button>
       </div>
+      <Grid className={classes.pokeGrid}>
+        {!loading ? (
+          pokemonsData.map((pokemon) => {
+            const { types, sprites, name, id } = pokemon;
+            return (
+              <PokemonCard
+                key={id}
+                id={id}
+                types={types}
+                img={sprites}
+                name={name}
+                addToParty={props.addToParty}
+                deleteFromParty={props.deleteFromParty}
+              />
+            );
+          })
+        ) : (
+          <CircularProgress />
+        )}
+      </Grid>
     </div>
   );
 }
