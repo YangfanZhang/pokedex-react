@@ -27,6 +27,7 @@ function Pokedex() {
     <div>
       <Header />
       <PokemonList addToParty={AddToParty} deleteFromParty={DeleteFromParty} />
+      <p>{partyMember}</p>
     </div>
   );
 }
