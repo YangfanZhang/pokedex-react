@@ -36,6 +36,7 @@ function PokemonList(props) {
   const limit = 12;
   const [offset, setOffset] = useState(0);
   const [pokemonsData, setPokemonsData] = useState([]);
+  const [pokemonsList, setPokemonsList] = useState([]);
   const [nextOffset, setNextOffset] = useState(12);
   const [prevOffset, setPrevOffset] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -50,6 +51,9 @@ function PokemonList(props) {
         })
       );
       setPokemonsData(_pokemonsData);
+      setPokemonsList((prevMembers) => {
+          return [...prevMembers, ..._pokemonsData];
+      });
       setHasMore(true);
     } else if (idList.includes(151)){
       let _pokemonsData = await Promise.all(
@@ -130,6 +134,7 @@ function PokemonList(props) {
           <CircularProgress />
         )}
       </Grid>
+      <div ref={lastPokeElementListRef}></div>
     </div>
   );
 }
