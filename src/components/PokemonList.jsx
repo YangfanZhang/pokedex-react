@@ -53,7 +53,7 @@ function PokemonList(props) {
           return [...new Set([...prevMembers, ..._pokemonsData])];
       });
       setHasMore(true);
-    } else if (idList.includes(151)) {
+    } else if (idList.includes(151)){
       let _pokemonsData = await Promise.all(
         idList.map(async (id) => {
           let pokemonRecord = await fetchPokemon(id);
@@ -64,7 +64,7 @@ function PokemonList(props) {
         return [...prevMembers, ..._pokemonsData];
       });
       setHasMore(false);
-    } else {
+    }else{
       setHasMore(false);
     }
     setLoading(false);
