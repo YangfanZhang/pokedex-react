@@ -41,11 +41,6 @@ export default function Header() {
     <div className={classes.root}>
       <AppBar className={classes.appBar} position="static">
         <Toolbar>
-          <img
-            className={classes.logo}
-            src="imgs/Josephmark.svg"
-            alt="Josephmark"
-          />
           <div className={classes.pageNames}>
             <NavLink to="/pokedex" activeStyle={{ color: 'white' }}>
               <Button className={classes.pageName} color="inherit">
